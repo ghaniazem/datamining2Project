@@ -48,27 +48,6 @@ class SVM:
        def convert_data(df) -> list: 
     
 
-<<<<<<< HEAD
-        y_ = np.where(y <= 0, -1, 1)
-
-        self.w = np.zeros(n_features)
-        self.b = 0
-
-        for _ in range(self.n_iters):
-            for idx, x_i in enumerate(X):
-                condition = y_[idx] * (np.dot(x_i, self.w) - self.b) >= 1
-                if condition:
-                    self.w -= self.lr * (2 * self.lambda_param * self.w)
-                else:
-                    self.w -= self.lr * (
-                        2 * self.lambda_param * self.w - np.dot(x_i, y_[idx])
-                    )
-                    self.b -= self.lr * y_[idx]
-
-    def predict(self, X):
-        approx = np.dot(X, self.w) - self.b
-        return np.sign(approx)
-=======
     y = []  #déclaration d'un tableau vide
     for index, line in df.iterrows():  
         cont = [
@@ -108,7 +87,6 @@ class SVM:
     return y 
 
 
->>>>>>> 90a734637eb868c93d5279f9494b21c5175faf11
 
 
 
@@ -200,7 +178,7 @@ if __name__ == '__main__':
     df_test = pd.read_csv("test.csv")
     df_train = pd.read_csv("train.csv")
 
-    #afficher les dimensions de DataFrame (nombre de lignes et nombre de colonnes)
+    # afficher les dimensions de DataFrame (nombre de lignes et nombre de colonnes)
     print("dimension de DataFrame: {} rows, {} columns".format(df.shape[0], df.shape[1]))
     print("dimension de DataFrame de teste : {} rows, {} columns".format(df_test.shape[0], df_test.shape[1]))
     print("dimension de DataFrame de train : {} rows, {} columns".format(df_train.shape[0], df_train.shape[1]))
@@ -210,21 +188,21 @@ if __name__ == '__main__':
     print(df_test.describe())
     print(df_train.describe())
 
-    #Renvoyer le nombre de valeurs uniques de chaque classe de "is_claim"
+    # Renvoyer le nombre de valeurs uniques de chaque classe de "is_claim"
     print("Les valeurs de classe is_claim est \n ",df_train['is_claim'].value_counts(), '\n')
 
     # Renvoyer le pourcentage des voitures avec ou sans assurance dans  chaque classe
     count_no_is_claim = len(df_train[df_train.is_claim == 0])
     count_is_claim = len(df_train[df_train.is_claim == 1])
     print("Pourcentage des voitures sans assurance: {:.2f}%".format(
-       (count_no_is_claim / (len(df_train.is_claim)) * 100)))
+        (count_no_is_claim / (len(df_train.is_claim)) * 100)))
     print("Pourcentage des voitures avec assurance : {:.2f}%".format(
-       (count_is_claim / (len(df_train.is_claim)) * 100)), "\n")
+        (count_is_claim / (len(df_train.is_claim)) * 100)), "\n")
 
     #conversion de données
-    #data_train_convertis = convert_data(df_train)
-    #print(data_train_convertis)
+    data_train_convertis = convert_data(df_train)
 
+    print(data_train_convertis)
     #conversion en liste
     l = np.array(df)
     l_test = np.array(df_test)
