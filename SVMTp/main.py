@@ -49,6 +49,95 @@ class SVM:
 
 
 
+def convert_data():
+    df = pd.read_csv("train.csv")
+
+    # les données catégorique sont de type object
+    categorical_features = [cols for cols in df if df[cols].dtype == 'object']
+    print(categorical_features)
+
+    # transformer le données catégorie en numérique
+    df_train_new1 = pd.get_dummies(data=df, columns=[
+        'area_cluster',
+        'segment',
+        'model',
+        'fuel_type',
+        'max_torque',
+        'max_power',
+        'engine_type',
+        'is_esc',
+        'is_adjustable_steering',
+        'is_tpms',
+        'is_parking_sensors',
+        'is_parking_camera',
+        'rear_brakes_type',
+        'transmission_type',
+        'steering_type',
+        'is_front_fog_lights',
+        'is_rear_window_wiper',
+        'is_rear_window_washer',
+        'is_rear_window_defogger',
+        'is_brake_assist',
+        'is_power_door_locks',
+        'is_central_locking',
+        'is_power_steering',
+        'is_driver_seat_height_adjustable',
+        'is_day_night_rear_view_mirror',
+        'is_ecw',
+        'is_speed_alert'
+    ], drop_first=True)
+
+    print(df_train_new1.head(3))
+
+    # supprimer colonne d'identifiant pas important pour entrainement
+    df_train_new2 = df_train_new1.drop(columns='policy_id', axis=1)
+    print(df_train_new2.head(3))
+
+    df = pd.read_csv("test.csv")
+    # print(df['policy_id'])
+
+    # les données catégorique sont de type object
+    categorical_features = [cols for cols in df if df[cols].dtype == 'object']
+
+    # transformer le données catégorie en numérique
+    df_test_new1 = pd.get_dummies(data=df, columns=[
+        'area_cluster',
+        'segment',
+        'model',
+        'fuel_type',
+        'max_torque',
+        'max_power',
+        'engine_type',
+        'is_esc',
+        'is_adjustable_steering',
+        'is_tpms',
+        'is_parking_sensors',
+        'is_parking_camera',
+        'rear_brakes_type',
+        'transmission_type',
+        'steering_type',
+        'is_front_fog_lights',
+        'is_rear_window_wiper',
+        'is_rear_window_washer',
+        'is_rear_window_defogger',
+        'is_brake_assist',
+        'is_power_door_locks',
+        'is_central_locking',
+        'is_power_steering',
+        'is_driver_seat_height_adjustable',
+        'is_day_night_rear_view_mirror',
+        'is_ecw',
+        'is_speed_alert'
+    ], drop_first=True)
+
+    print(df_test_new1.head())
+
+    # supprimer colonne d'identifiant pas important pour test
+    df_test_new2 = df_test_new1.drop(columns='policy_id', axis=1)
+    print(df_test_new2.head())
+
+
+
 
 
 if __name__ == '__main__':
