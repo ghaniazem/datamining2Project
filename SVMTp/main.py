@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from typing import Iterable
 
 #asssss
 class SVM:
@@ -49,12 +50,11 @@ class SVM:
 
 
 
-def convert_data():
-    df = pd.read_csv("train.csv")
+def convert_data(df: pd.DataFrame):
 
     # les données catégorique sont de type object
     categorical_features = [cols for cols in df if df[cols].dtype == 'object']
-    print(categorical_features)
+    #print(categorical_features)
 
     # transformer le données catégorie en numérique
     df_train_new1 = pd.get_dummies(data=df, columns=[
@@ -87,54 +87,19 @@ def convert_data():
         'is_speed_alert'
     ], drop_first=True)
 
-    print(df_train_new1.head(3))
+    #print(df_train_new1.head(3))
 
     # supprimer colonne d'identifiant pas important pour entrainement
     df_train_new2 = df_train_new1.drop(columns='policy_id', axis=1)
-    print(df_train_new2.head(3))
 
-    df = pd.read_csv("test.csv")
-    # print(df['policy_id'])
+    return df_train_new2
 
-    # les données catégorique sont de type object
-    categorical_features = [cols for cols in df if df[cols].dtype == 'object']
-
-    # transformer le données catégorie en numérique
-    df_test_new1 = pd.get_dummies(data=df, columns=[
-        'area_cluster',
-        'segment',
-        'model',
-        'fuel_type',
-        'max_torque',
-        'max_power',
-        'engine_type',
-        'is_esc',
-        'is_adjustable_steering',
-        'is_tpms',
-        'is_parking_sensors',
-        'is_parking_camera',
-        'rear_brakes_type',
-        'transmission_type',
-        'steering_type',
-        'is_front_fog_lights',
-        'is_rear_window_wiper',
-        'is_rear_window_washer',
-        'is_rear_window_defogger',
-        'is_brake_assist',
-        'is_power_door_locks',
-        'is_central_locking',
-        'is_power_steering',
-        'is_driver_seat_height_adjustable',
-        'is_day_night_rear_view_mirror',
-        'is_ecw',
-        'is_speed_alert'
-    ], drop_first=True)
-
-    print(df_test_new1.head())
-
-    # supprimer colonne d'identifiant pas important pour test
-    df_test_new2 = df_test_new1.drop(columns='policy_id', axis=1)
-    print(df_test_new2.head())
+def accuracy(predictions : Iterable, trues : Iterable):
+    cpt = 0
+    for p, t in zip(predictions, trues):
+        if p == t:
+            cpt += 1
+    return cpt / len(predictions)
 
 
 
@@ -147,37 +112,71 @@ if __name__ == '__main__':
     df_train = pd.read_csv("train.csv")
 
     #afficher les dimensions de DataFrame (nombre de lignes et nombre de colonnes)
-    print("dimension de DataFrame: {} rows, {} columns".format(df.shape[0], df.shape[1]))
-    print("dimension de DataFrame de teste : {} rows, {} columns".format(df_test.shape[0], df_test.shape[1]))
-    print("dimension de DataFrame de train : {} rows, {} columns".format(df_train.shape[0], df_train.shape[1]))
+    print("dimension de DataFrame: {} rows, {} columns".format(df.shape[0], df.shape[1]), '\n')
+    print("dimension de DataFrame de teste : {} rows, {} columns".format(df_test.shape[0], df_test.shape[1]), '\n')
+    print("dimension de DataFrame de train : {} rows, {} columns".format(df_train.shape[0], df_train.shape[1]), '\n')
 
     # Générer des statistiques descriptives
-    print(df.describe())
-    print(df_test.describe())
-    print(df_train.describe())
+    print("statistiques descriptives de df", df.describe(), '\n')
+    print("statistiques descriptives de df_test",df_test.describe(), '\n')
+    print("statistiques descriptives de df_train",df_train.describe(), '\n \n')
+
+    #afficher des informations sur les donees
+    print("Informations sur le dataset : \n \n")
+    print(df_train.info(), '\n \n')
 
     #Renvoyer le nombre de valeurs uniques de chaque classe de "is_claim"
     print("Les valeurs de classe is_claim est \n ",df_train['is_claim'].value_counts(), '\n')
 
-    # Renvoyer le pourcentage des voitures avec ou sans assurance dans  chaque classe
+    # Renvoyer le pourcentage des clients qui vont faire ou pas une demande de remboursement à son assurance automobile
     count_no_is_claim = len(df_train[df_train.is_claim == 0])
     count_is_claim = len(df_train[df_train.is_claim == 1])
-    print("Pourcentage des voitures sans assurance: {:.2f}%".format(
+    print("Pourcentage des clients qui vont faire une demande de remboursement: {:.2f}%".format(
        (count_no_is_claim / (len(df_train.is_claim)) * 100)))
-    print("Pourcentage des voitures avec assurance : {:.2f}%".format(
+    print("Pourcentage des clients qui vont pas faire une demande de remboursement : {:.2f}%".format(
        (count_is_claim / (len(df_train.is_claim)) * 100)), "\n")
 
     #conversion de données
-    #data_train_convertis = convert_data(df_train)
-    #print(data_train_convertis)
+    df_test_converted = convert_data(df_test)
+    df_train_converted = convert_data(df_train)
 
     #conversion en liste
-    l = np.array(df)
-    l_test = np.array(df_test)
-    l_train = np.array(df_test)
 
-    #print(l)
-    #print(l_test)
-    t = list(l_train[::1])
-    #print("liste ",t)
+    l = np.array(df)
+    l_test = np.array(df_test_converted)
+    #print(l_test, '\n')
+    l_train = np.array(df_train_converted)
+
+    #mélnge de données
+    np.random.shuffle(l_test)
+    np.random.shuffle(l_train)
+
+    #Normalisation de données (test)
+    moy = np.mean(l_test, axis=0)
+    dev = np.std(l_test, axis=0)
+    l_test = (l_test - moy) / dev
+    #print(l_test, '\n')
+
+    # Normalisation de données (train)
+    X_train = l_train[:, 0:43] #liste qui contient toutes les colonnes sauf la classe
+    Y_train = l_train[:, 43] #liste qui contient que la classe
+    #print(X_train)
+    moy_train = np.mean(X_train, axis=0)
+    dev_train = np.std(X_train, axis=0)
+    X_train = (X_train - moy_train) / dev_train
+
+    #création d'un modèle SVM
+
+    model = SVM()
+    print(model)
+
+    #entrainement de modele
+    #model.fit(X_train, Y_train)
+
+    #predictions sur les données de test
+    predictions = model.predict(l_test)
+
+    #calcul d'accuracy
+    acc = accuracy(predictions, Y_train)
+
 
